@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AquaRisk – Intelligent Water Disease Risk Prediction</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#111827;--bg3:#1a2332;
+  --cyan:#00d4ff;--cyan2:#0090b0;
+  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;--orange:#f97316;
+  --text:#e2e8f0;--muted:#8892a4;--border:#1e3045;
+  --font-head:'Rajdhani',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden}
+
+/* CANVAS BG */
+#bg-canvas{position:fixed;inset:0;z-index:0;opacity:.4}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(13,17,23,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 40px;height:60px}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo i{font-size:22px;color:var(--cyan)}
+.nav-logo span{font-family:var(--font-head);font-size:22px;font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),#0070a0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{margin-left:auto;display:flex;gap:8px;align-items:center}
+.nav-link{color:var(--muted);text-decoration:none;padding:8px 16px;border-radius:7px;
+  font-size:13px;font-weight:500;transition:.2s}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.nav-cta{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#000 !important;
+  font-weight:700;padding:8px 20px;border-radius:7px}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,212,255,.3)}
+
+/* HERO */
+.hero{position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:100px 20px 60px}
+
+.hero-badge{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);
+  border-radius:20px;padding:6px 16px;font-size:12px;color:var(--cyan);
+  font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:28px;
+  animation:fadeUp .6s ease both}
+
+.hero h1{font-family:var(--font-head);font-size:clamp(42px,7vw,80px);
+  font-weight:700;line-height:1.05;margin-bottom:22px;
+  animation:fadeUp .7s .1s ease both}
+.hero h1 .cyan{color:var(--cyan)}
+.hero h1 .grad{background:linear-gradient(135deg,var(--cyan),#22c55e);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+.hero p{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:620px;
+  line-height:1.7;margin-bottom:38px;animation:fadeUp .7s .2s ease both}
+
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .7s .3s ease both}
+.btn-hero-primary{background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  color:#000;font-weight:700;padding:14px 32px;border-radius:8px;
+  text-decoration:none;font-size:15px;display:flex;align-items:center;gap:9px;
+  transition:.2s;font-family:var(--font-body)}
+.btn-hero-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,212,255,.3)}
+.btn-hero-outline{border:1px solid var(--border);color:var(--text);
+  padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;
+  display:flex;align-items:center;gap:9px;transition:.2s;font-family:var(--font-body)}
+.btn-hero-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* STATS ROW */
+.hero-stats{display:flex;gap:40px;margin-top:60px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .7s .4s ease both}
+.hs{text-align:center}
+.hs-val{font-family:var(--font-head);font-size:36px;font-weight:700;color:var(--cyan)}
+.hs-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
+
+/* SECTION */
+section{position:relative;z-index:1;padding:80px 40px;max-width:1200px;margin:0 auto}
+.section-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--cyan);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.section-title{font-family:var(--font-head);font-size:clamp(30px,4vw,46px);
+  font-weight:700;line-height:1.1;margin-bottom:16px}
+.section-sub{font-size:15px;color:var(--muted);max-width:540px;line-height:1.6}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;margin-top:48px}
+.feat-card{background:rgba(20,28,40,.8);border:1px solid var(--border);border-radius:12px;
+  padding:26px;transition:.3s;position:relative;overflow:hidden;backdrop-filter:blur(4px)}
+.feat-card:hover{border-color:var(--cyan2);transform:translateY(-3px);
+  box-shadow:0 12px 30px rgba(0,212,255,.08)}
+.feat-card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,212,255,.04),transparent);pointer-events:none}
+.feat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;margin-bottom:16px}
+.feat-icon.a{background:rgba(0,212,255,.1);color:var(--cyan)}
+.feat-icon.b{background:rgba(34,197,94,.1);color:var(--green)}
+.feat-icon.c{background:rgba(245,158,11,.1);color:var(--amber)}
+.feat-icon.d{background:rgba(239,68,68,.1);color:var(--red)}
+.feat-icon.e{background:rgba(249,115,22,.1);color:var(--orange)}
+.feat-icon.f{background:rgba(139,92,246,.1);color:#a78bfa}
+.feat-title{font-family:var(--font-head);font-size:17px;font-weight:600;margin-bottom:8px}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ALGO SECTION */
+.algo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+.algo-card{background:rgba(20,28,40,.8);border:1px solid var(--border);border-radius:12px;padding:28px;
+  transition:.3s;backdrop-filter:blur(4px)}
+.algo-card:hover{border-color:var(--cyan2)}
+.algo-header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.algo-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:22px}
+.algo-name{font-family:var(--font-head);font-size:20px;font-weight:700}
+.algo-acc{font-size:12px;color:var(--muted);margin-top:3px}
+.algo-tag{display:inline-block;background:rgba(0,212,255,.1);color:var(--cyan);
+  border:1px solid rgba(0,212,255,.2);border-radius:4px;font-size:10px;
+  padding:2px 8px;font-weight:600;letter-spacing:.5px}
+.algo-features{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.af{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.af i{color:var(--cyan);font-size:11px;width:14px}
+
+/* WORKFLOW */
+.workflow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:48px;
+  position:relative}
+.workflow::before{content:'';position:absolute;top:30px;left:10%;right:10%;
+  height:1px;background:linear-gradient(90deg,transparent,var(--cyan2),transparent)}
+.wf-step{text-align:center;padding:0 16px}
+.wf-num{width:60px;height:60px;border-radius:50%;margin:0 auto 16px;
+  background:var(--bg3);border:2px solid var(--cyan2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--cyan);
+  position:relative;z-index:1}
+.wf-title{font-family:var(--font-head);font-size:16px;font-weight:600;margin-bottom:6px}
+.wf-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* RISK LEGEND */
+.risk-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.rl{display:flex;align-items:center;gap:8px;
+  background:rgba(20,28,40,.8);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600}
+.rl-dot{width:10px;height:10px;border-radius:50%}
+
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);
+  padding:32px 40px;text-align:center;color:var(--muted);font-size:13px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){
+  .algo-grid,.workflow{grid-template-columns:1fr}
+  .workflow::before{display:none}
+  .hero-stats{gap:24px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">
+    <i class="fa-solid fa-droplet"></i>
+    <span>AquaRisk</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#algorithms" class="nav-link">Algorithms</a>
+    <a href="#workflow" class="nav-link">How It Works</a>
+    {% if session.username %}
+    <a href="{{ url_for('dashboard') }}" class="nav-link nav-cta">
+      <i class="fa-solid fa-gauge"></i> Dashboard
+    </a>
+    {% else %}
+    <a href="{{ url_for('login') }}" class="nav-link nav-cta">
+      <i class="fa-solid fa-right-to-bracket"></i> Login
+    </a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">
+    <i class="fa-solid fa-satellite-dish"></i>
+    AI-Powered Water Safety Intelligence
+  </div>
+  <h1>
+    Predict <span class="grad">Water-Borne Disease</span><br>
+    Outbreaks <span class="cyan">Intelligently</span>
+  </h1>
+  <p>
+    Advanced machine learning models — Random Forest &amp; Decision Tree —
+    analyze water quality parameters to predict outbreak risk levels
+    in real time, helping communities stay safe.
+  </p>
+  <div class="hero-btns">
+    {% if session.username %}
+    <a href="{{ url_for('predict') }}" class="btn-hero-primary">
+      <i class="fa-solid fa-brain"></i> Start Predicting
+    </a>
+    <a href="{{ url_for('dashboard') }}" class="btn-hero-outline">
+      <i class="fa-solid fa-chart-line"></i> View Dashboard
+    </a>
+    {% else %}
+    <a href="{{ url_for('login') }}" class="btn-hero-primary">
+      <i class="fa-solid fa-right-to-bracket"></i> Get Started
+    </a>
+    <a href="#features" class="btn-hero-outline">
+      <i class="fa-solid fa-circle-info"></i> Learn More
+    </a>
+    {% endif %}
+  </div>
+  <div class="hero-stats">
+    <div class="hs"><div class="hs-val">95%+</div><div class="hs-lbl">RF Accuracy</div></div>
+    <div class="hs"><div class="hs-val">12</div><div class="hs-lbl">Parameters</div></div>
+    <div class="hs"><div class="hs-val">4</div><div class="hs-lbl">Risk Levels</div></div>
+    <div class="hs"><div class="hs-val">Real-Time</div><div class="hs-lbl">Predictions</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag">Core Capabilities</div>
+  <div class="section-title">Everything you need for<br>water safety monitoring</div>
+  <div class="section-sub">Comprehensive tools to detect, predict and alert on waterborne disease risks before outbreaks occur.</div>
+
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon a"><i class="fa-solid fa-brain"></i></div>
+      <div class="feat-title">ML Prediction Engine</div>
+      <div class="feat-desc">Dual-model system using Random Forest and Decision Tree algorithms with real-time inference on 12 water quality parameters.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon b"><i class="fa-solid fa-chart-mixed"></i></div>
+      <div class="feat-title">Interactive Dashboard</div>
+      <div class="feat-desc">Live statistics, regional risk maps, seasonal trends, and model performance comparisons at a glance.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon c"><i class="fa-solid fa-bell-exclamation"></i></div>
+      <div class="feat-title">Automated Alerts</div>
+      <div class="feat-desc">Instant alerts for High and Critical risk predictions with resolution tracking and historical audit trail.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon d"><i class="fa-solid fa-grid-2"></i></div>
+      <div class="feat-title">Confusion Matrix</div>
+      <div class="feat-desc">Visual confusion matrix and classification reports showing model performance across all four risk categories.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon e"><i class="fa-solid fa-ranking-star"></i></div>
+      <div class="feat-title">Feature Importance</div>
+      <div class="feat-desc">Understand which water quality factors drive outbreak risk — coliform count, turbidity, pH, and more.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon f"><i class="fa-solid fa-file-chart-pie"></i></div>
+      <div class="feat-title">Detailed Reports</div>
+      <div class="feat-desc">Export comprehensive reports with regional summaries, seasonal analysis, and model accuracy breakdowns.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ALGORITHMS -->
+<section id="algorithms">
+  <div class="section-tag">ML Algorithms</div>
+  <div class="section-title">Powered by two proven<br>classification algorithms</div>
+
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="algo-header">
+        <div class="algo-icon" style="background:rgba(0,212,255,.1);color:var(--cyan)">
+          <i class="fa-solid fa-forest"></i>
+        </div>
+        <div>
+          <div class="algo-name">Random Forest</div>
+          <div class="algo-acc">Primary Model · ~95% Accuracy</div>
+        </div>
+        <span class="algo-tag" style="margin-left:auto">RECOMMENDED</span>
+      </div>
+      <div class="algo-features">
+        <div class="af"><i class="fa-solid fa-check"></i> 100 decision trees in ensemble</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Resistant to overfitting</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Built-in feature importance ranking</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Handles missing values gracefully</div>
+        <div class="af"><i class="fa-solid fa-check"></i> High accuracy on imbalanced data</div>
+      </div>
+    </div>
+
+    <div class="algo-card">
+      <div class="algo-header">
+        <div class="algo-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">
+          <i class="fa-solid fa-diagram-project"></i>
+        </div>
+        <div>
+          <div class="algo-name">Decision Tree</div>
+          <div class="algo-acc">Secondary Model · ~90% Accuracy</div>
+        </div>
+      </div>
+      <div class="algo-features">
+        <div class="af"><i class="fa-solid fa-check"></i> Depth-8 pruned tree structure</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Human-interpretable rules</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Fast inference speed</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Clear decision boundaries</div>
+        <div class="af"><i class="fa-solid fa-check"></i> Useful for rule extraction</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:36px">
+    <div style="font-size:14px;color:var(--muted);margin-bottom:12px">Risk Classification Levels</div>
+    <div class="risk-legend">
+      <div class="rl"><div class="rl-dot" style="background:#22c55e"></div> Low Risk</div>
+      <div class="rl"><div class="rl-dot" style="background:#f59e0b"></div> Medium Risk</div>
+      <div class="rl"><div class="rl-dot" style="background:#f97316"></div> High Risk</div>
+      <div class="rl"><div class="rl-dot" style="background:#ef4444"></div> Critical Risk</div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">Four simple steps to<br>outbreak prediction</div>
+
+  <div class="workflow">
+    <div class="wf-step">
+      <div class="wf-num">01</div>
+      <div class="wf-title">Input Parameters</div>
+      <div class="wf-desc">Enter water quality data: pH, turbidity, coliform count, temperature, rainfall, and more.</div>
+    </div>
+    <div class="wf-step">
+      <div class="wf-num">02</div>
+      <div class="wf-title">Model Processing</div>
+      <div class="wf-desc">Random Forest or Decision Tree processes 12 features through trained classification model.</div>
+    </div>
+    <div class="wf-step">
+      <div class="wf-num">03</div>
+      <div class="wf-title">Risk Assessment</div>
+      <div class="wf-desc">Output one of four risk levels — Low, Medium, High, or Critical — with confidence score.</div>
+    </div>
+    <div class="wf-step">
+      <div class="wf-num">04</div>
+      <div class="wf-title">Alert & Report</div>
+      <div class="wf-desc">High/Critical cases trigger automatic alerts. Generate detailed reports for authorities.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2024 AquaRisk · Intelligent Risk Prediction for Water-Borne Disease Outbreaks</p>
+  <p style="margin-top:6px;font-size:12px">Built with Python · Flask · Scikit-learn · Random Forest · Decision Tree</p>
+</footer>
+
+<script>
+// Animated background particles
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight }
+resize(); window.addEventListener('resize',resize);
+
+for(let i=0;i<80;i++){
+  particles.push({
+    x:Math.random()*1000,y:Math.random()*1000,
+    r:Math.random()*1.5+.3,
+    vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,
+    o:Math.random()*.5+.1
+  })
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,212,255,${p.o})`;
+    ctx.fill();
+  });
+  // Draw connecting lines
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(0,212,255,${.08*(1-dist/120)})`;
+        ctx.lineWidth=.5;
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+  })
+});
+</script>
+</body>
+</html>

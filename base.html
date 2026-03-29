@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{% block title %}AquaRisk – Water Disease Prediction{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#111827;--bg3:#1a2332;
+  --card:#141c28;--card2:#1a2332;
+  --border:#1e3045;--border2:#243044;
+  --cyan:#00d4ff;--cyan2:#0090b0;
+  --green:#22c55e;--amber:#f59e0b;
+  --orange:#f97316;--red:#ef4444;
+  --text:#e2e8f0;--muted:#8892a4;--faint:#3d4f66;
+  --font-head:'Rajdhani',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px}
+
+/* ── SCROLLBAR ─────────────────────────────── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── LAYOUT ────────────────────────────────── */
+.wrapper{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ───────────────────────────────── */
+.sidebar{width:240px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;transition:.3s}
+.sidebar-logo{padding:22px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-icon{display:flex;align-items:center;gap:10px}
+.logo-icon i{font-size:26px;color:var(--cyan)}
+.logo-text{font-family:var(--font-head);font-size:22px;font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),#0070a0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:2px;text-transform:uppercase}
+
+.nav-section{padding:16px 0}
+.nav-label{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:2px;
+  padding:6px 20px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;color:var(--muted);
+  text-decoration:none;font-size:13px;font-weight:500;transition:.2s;position:relative;
+  border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:rgba(0,212,255,.05);border-left-color:var(--cyan2)}
+.nav-item.active{color:var(--cyan);background:rgba(0,212,255,.08);border-left-color:var(--cyan)}
+.nav-item i{width:18px;text-align:center;font-size:14px}
+.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;
+  font-size:10px;padding:2px 6px;border-radius:10px}
+
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:10px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-head);
+  font-weight:700;font-size:14px;color:#fff}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* ── MAIN ──────────────────────────────────── */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:var(--font-head);font-size:20px;font-weight:600;color:var(--text)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.topbar-btn{background:none;border:1px solid var(--border2);color:var(--muted);
+  padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;transition:.2s;
+  text-decoration:none;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.content{padding:28px;flex:1}
+
+/* ── CARDS ──────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.card-title{font-family:var(--font-head);font-size:16px;font-weight:600;color:var(--text)}
+.card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:14px}
+
+/* ── STAT CARDS ─────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:18px;position:relative;overflow:hidden;transition:.2s}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,
+  rgba(0,212,255,.04),transparent);pointer-events:none}
+.stat-val{font-family:var(--font-head);font-size:32px;font-weight:700;line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+.stat-icon{position:absolute;right:16px;top:16px;font-size:22px;opacity:.2}
+.c-cyan{color:var(--cyan)}.c-green{color:var(--green)}.c-amber{color:var(--amber)}
+.c-orange{color:var(--orange)}.c-red{color:var(--red)}
+
+/* ── GRID ───────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+/* ── BADGES ─────────────────────────────────── */
+.badge-risk{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.risk-low{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.risk-medium{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.risk-high{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+.risk-critical{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+
+/* ── FORMS ──────────────────────────────────── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.form-control{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;
+  padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font-body);
+  transition:.2s;outline:none}
+.form-control:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+select.form-control option{background:var(--bg2)}
+
+/* ── BUTTONS ────────────────────────────────── */
+.btn{padding:10px 22px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;
+  transition:.2s;border:none;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#000}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,212,255,.3)}
+.btn-outline{background:none;border:1px solid var(--border2);color:var(--muted)}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-success{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.btn-success:hover{background:var(--green);color:#000}
+.btn-sm{padding:6px 14px;font-size:12px}
+
+/* ── TABLE ──────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── ALERTS BOX ─────────────────────────────── */
+.alert-box{border-radius:8px;padding:14px 18px;margin-bottom:16px;
+  display:flex;align-items:flex-start;gap:12px}
+.alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3)}
+.alert-warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
+.alert-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}
+.alert-info{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3)}
+
+/* ── CHART IMG ──────────────────────────────── */
+.chart-img{width:100%;border-radius:8px;display:block}
+
+/* ── PROGRESS ───────────────────────────────── */
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:.4s}
+
+/* ── FLASH ──────────────────────────────────── */
+.flash{position:fixed;top:70px;right:20px;z-index:999;max-width:340px;
+  background:var(--card2);border:1px solid var(--border2);border-radius:10px;
+  padding:14px 18px;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="wrapper">
+  {% if session.username %}
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <i class="fa-solid fa-droplet"></i>
+        <div>
+          <div class="logo-text">AquaRisk</div>
+          <div class="logo-sub">Disease Prediction</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-section">
+      <div class="nav-label">Main</div>
+      <a href="{{ url_for('index') }}"      class="nav-item {% if request.endpoint=='index' %}active{% endif %}">
+        <i class="fa-solid fa-house"></i> Home
+      </a>
+      <a href="{{ url_for('dashboard') }}"  class="nav-item {% if request.endpoint=='dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </a>
+      <a href="{{ url_for('predict') }}"    class="nav-item {% if request.endpoint=='predict' %}active{% endif %}">
+        <i class="fa-solid fa-brain"></i> Predict
+      </a>
+
+      <div class="nav-label" style="margin-top:8px">Monitor</div>
+      <a href="{{ url_for('alerts') }}"     class="nav-item {% if request.endpoint=='alerts' %}active{% endif %}">
+        <i class="fa-solid fa-bell"></i> Alerts
+        {% set active_cnt = alerts_count|default(0) %}
+        {% if active_cnt > 0 %}<span class="badge">{{ active_cnt }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('reports') }}"    class="nav-item {% if request.endpoint=='reports' %}active{% endif %}">
+        <i class="fa-solid fa-file-chart-column"></i> Reports
+      </a>
+
+      {% if session.role == 'admin' %}
+      <div class="nav-label" style="margin-top:8px">Admin</div>
+      <a href="{{ url_for('admin') }}"      class="nav-item {% if request.endpoint=='admin' %}active{% endif %}">
+        <i class="fa-solid fa-shield-halved"></i> Admin Panel
+      </a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ session.name[0].upper() }}</div>
+        <div>
+          <div class="user-name">{{ session.name }}</div>
+          <div class="user-role">{{ session.role }}</div>
+        </div>
+      </div>
+      <a href="{{ url_for('logout') }}" class="nav-item" style="margin-top:10px;border-left:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
+    </div>
+  </aside>
+  {% endif %}
+
+  <div class="main">
+    {% if session.username %}
+    <header class="topbar">
+      <span class="topbar-title">{% block page_title %}{% endblock %}</span>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)">
+          <div class="status-dot"></div> System Online
+        </div>
+        <a href="{{ url_for('predict') }}" class="topbar-btn">
+          <i class="fa-solid fa-plus"></i> New Prediction
+        </a>
+      </div>
+    </header>
+    {% endif %}
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

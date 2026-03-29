@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Login – AquaRisk</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d1117;--card:#141c28;--border:#1e3045;--border2:#243044;
+  --cyan:#00d4ff;--cyan2:#0090b0;--red:#ef4444;--text:#e2e8f0;--muted:#8892a4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+canvas{position:fixed;inset:0;opacity:.3;z-index:0}
+
+.login-wrap{position:relative;z-index:1;display:flex;gap:0;width:900px;max-width:96vw;
+  min-height:520px;border-radius:16px;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);border:1px solid var(--border)}
+
+.login-left{flex:1;background:linear-gradient(135deg,#0a1520,#0d1f30);
+  padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between}
+.ll-logo{display:flex;align-items:center;gap:10px;margin-bottom:48px}
+.ll-logo i{font-size:28px;color:var(--cyan)}
+.ll-logo span{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),#22c55e);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ll-title{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1.2;
+  margin-bottom:14px}
+.ll-title .hl{color:var(--cyan)}
+.ll-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:36px}
+.ll-features{display:flex;flex-direction:column;gap:12px}
+.lf{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.lf i{color:var(--cyan);width:16px;font-size:12px}
+.ll-creds{margin-top:auto;padding-top:32px;border-top:1px solid var(--border)}
+.cred-title{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:10px}
+.cred-row{display:flex;gap:8px;flex-wrap:wrap}
+.cred-pill{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.15);
+  border-radius:6px;padding:6px 12px;font-size:11px;color:var(--muted);font-family:'Courier New',monospace}
+.cred-pill span{color:var(--cyan)}
+
+.login-right{width:380px;background:var(--card);padding:48px 36px;
+  display:flex;flex-direction:column;justify-content:center}
+.lr-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;margin-bottom:6px}
+.lr-sub{font-size:13px;color:var(--muted);margin-bottom:32px}
+
+.tab-row{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--border);
+  border-radius:8px;overflow:hidden}
+.tab-btn{flex:1;padding:9px;font-size:12px;font-weight:600;cursor:pointer;
+  background:none;border:none;color:var(--muted);transition:.2s;font-family:'Inter',sans-serif;
+  text-transform:uppercase;letter-spacing:.5px}
+.tab-btn.active{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#000}
+
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.input-wrap{position:relative}
+.input-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--muted);font-size:13px}
+.form-control{width:100%;background:#0d1117;border:1px solid var(--border2);border-radius:7px;
+  padding:11px 12px 11px 36px;color:var(--text);font-size:13px;outline:none;
+  transition:.2s;font-family:'Inter',sans-serif}
+.form-control:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+
+.btn-login{width:100%;padding:12px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+  border:none;border-radius:7px;font-size:14px;font-weight:700;color:#000;
+  cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Inter',sans-serif;margin-top:8px}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,212,255,.3)}
+
+.error-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:7px;padding:10px 14px;font-size:13px;color:#ef4444;
+  display:flex;align-items:center;gap:8px;margin-bottom:16px}
+
+@media(max-width:700px){
+  .login-left{display:none}
+  .login-right{width:100%;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="login-wrap">
+  <div class="login-left">
+    <div>
+      <div class="ll-logo"><i class="fa-solid fa-droplet"></i><span>AquaRisk</span></div>
+      <div class="ll-title">Intelligent <span class="hl">Water Disease</span><br>Risk Prediction</div>
+      <div class="ll-sub">AI-powered outbreak detection using Random Forest &amp; Decision Tree algorithms. Monitor water quality, predict risks, and protect communities in real time.</div>
+      <div class="ll-features">
+        <div class="lf"><i class="fa-solid fa-check-circle"></i> Real-time risk classification (4 levels)</div>
+        <div class="lf"><i class="fa-solid fa-check-circle"></i> Confusion matrix & feature importance</div>
+        <div class="lf"><i class="fa-solid fa-check-circle"></i> Automated high-risk alerts</div>
+        <div class="lf"><i class="fa-solid fa-check-circle"></i> Regional & seasonal analytics</div>
+        <div class="lf"><i class="fa-solid fa-check-circle"></i> Admin & user role management</div>
+      </div>
+    </div>
+    <div class="ll-creds">
+      <div class="cred-title">Demo Credentials</div>
+      <div class="cred-row">
+        <div class="cred-pill"><span>admin</span> / admin123</div>
+        <div class="cred-pill"><span>user1</span> / user123</div>
+        <div class="cred-pill"><span>user2</span> / user456</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="lr-title">Welcome back</div>
+    <div class="lr-sub">Sign in to your AquaRisk account</div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-user" onclick="setTab('user')">
+        <i class="fa-solid fa-user"></i> User
+      </button>
+      <button class="tab-btn" id="tab-admin" onclick="setTab('admin')">
+        <i class="fa-solid fa-shield-halved"></i> Admin
+      </button>
+    </div>
+
+    {% if error %}
+    <div class="error-box"><i class="fa-solid fa-circle-xmark"></i> {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input id="username-inp" type="text" name="username" class="form-control"
+                 placeholder="Enter username" required autocomplete="username"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" name="password" class="form-control"
+                 placeholder="Enter password" required autocomplete="current-password"/>
+        </div>
+      </div>
+      <button type="submit" class="btn-login">
+        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+      </button>
+    </form>
+
+    <div style="margin-top:20px;text-align:center">
+      <a href="{{ url_for('index') }}" style="font-size:12px;color:var(--muted);text-decoration:none">
+        <i class="fa-solid fa-arrow-left"></i> Back to Home
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTab(t){
+  document.getElementById('tab-user').classList.toggle('active',t==='user');
+  document.getElementById('tab-admin').classList.toggle('active',t==='admin');
+  document.getElementById('username-inp').value = t==='admin' ? 'admin' : 'user1';
+}
+
+// BG canvas
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H; const pts=[];
+function rz(){W=c.width=innerWidth;H=c.height=innerHeight}
+rz();window.onresize=rz;
+for(let i=0;i<60;i++) pts.push({x:Math.random()*2000,y:Math.random()*1000,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4});
+(function anim(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,1.2,0,6.28);ctx.fillStyle='rgba(0,212,255,.6)';ctx.fill()});
+  requestAnimationFrame(anim)
+})();
+</script>
+</body>
+</html>

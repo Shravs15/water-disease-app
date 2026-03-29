@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Admin Panel – AquaRisk{% endblock %}
+{% block page_title %}<i class="fa-solid fa-shield-halved" style="color:var(--cyan);margin-right:8px"></i>Admin Panel{% endblock %}
+
+{% block content %}
+<div class="alert-box alert-info" style="margin-bottom:20px">
+  <i class="fa-solid fa-shield-halved" style="color:var(--cyan)"></i>
+  <div>
+    <strong>Admin Access</strong>
+    <div style="font-size:12px;color:var(--muted);margin-top:3px">
+      Logged in as <strong>{{ session.name }}</strong> · Full system access
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid" style="margin-bottom:24px">
+  <div class="stat-card">
+    <div class="stat-val c-cyan">{{ stats.total_users }}</div>
+    <div class="stat-lbl">Total Users</div>
+    <i class="fa-solid fa-users stat-icon c-cyan"></i>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val c-green">{{ stats.total_records }}</div>
+    <div class="stat-lbl">Dataset Records</div>
+    <i class="fa-solid fa-database stat-icon c-green"></i>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val c-red">{{ stats.active_alerts }}</div>
+    <div class="stat-lbl">Active Alerts</div>
+    <i class="fa-solid fa-bell stat-icon c-red"></i>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val c-cyan">{{ stats.rf_accuracy }}%</div>
+    <div class="stat-lbl">RF Accuracy</div>
+    <i class="fa-solid fa-bullseye stat-icon c-cyan"></i>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val c-amber">{{ stats.dt_accuracy }}%</div>
+    <div class="stat-lbl">DT Accuracy</div>
+    <i class="fa-solid fa-diagram-project stat-icon c-amber"></i>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+  <!-- USER MANAGEMENT -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(0,212,255,.1)">
+        <i class="fa-solid fa-users" style="color:var(--cyan)"></i>
+      </div>
+      <span class="card-title">User Management</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>User</th><th>Role</th><th>Name</th></tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:28px;height:28px;border-radius:50%;
+                  background:linear-gradient(135deg,var(--cyan),var(--cyan2));
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:11px;font-weight:700;color:#000">
+                  {{ u.username[0].upper() }}
+                </div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px">{{ u.username }}</span>
+              </div>
+            </td>
+            <td>
+              {% if u.role == 'admin' %}
+              <span class="badge-risk" style="background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.3)">
+                <i class="fa-solid fa-shield-halved" style="font-size:9px"></i> Admin
+              </span>
+              {% else %}
+              <span class="badge-risk" style="background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)">
+                <i class="fa-solid fa-user" style="font-size:9px"></i> User
+              </span>
+              {% endif %}
+            </td>
+            <td style="color:var(--muted)">{{ u.name }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RECENT ALERTS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(239,68,68,.1)">
+        <i class="fa-solid fa-bell" style="color:var(--red)"></i>
+      </div>
+      <span class="card-title">Recent Alerts</span>
+      <a href="{{ url_for('alerts') }}" class="btn btn-outline btn-sm" style="margin-left:auto">View All</a>
+    </div>
+    {% if alerts %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Region</th><th>Risk</th><th>Status</th><th>Time</th></tr>
+        </thead>
+        <tbody>
+          {% for a in alerts|reverse %}
+          <tr>
+            <td>{{ a.region }}</td>
+            <td><span class="badge-risk risk-{{ a.risk_level|lower }}">{{ a.risk_level }}</span></td>
+            <td>
+              {% if a.resolved %}
+              <span style="color:var(--green);font-size:12px"><i class="fa-solid fa-check"></i> Resolved</span>
+              {% else %}
+              <span style="color:var(--red);font-size:12px"><i class="fa-solid fa-circle-dot"></i> Active</span>
+              {% endif %}
+            </td>
+            <td style="font-size:11px;color:var(--faint);font-family:'JetBrains Mono',monospace">
+              {{ a.timestamp[-8:] }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">
+      No alerts yet. Alerts are auto-generated for High/Critical predictions.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- SYSTEM INFO -->
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(139,92,246,.1)">
+        <i class="fa-solid fa-server" style="color:#a78bfa"></i>
+      </div>
+      <span class="card-title">System Information</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      {% set info = [
+        ('Framework','Flask (Python)','fa-python','var(--cyan)'),
+        ('ML Library','Scikit-learn','fa-brain','var(--green)'),
+        ('Algorithms','RF + DT','fa-diagram-project','var(--amber)'),
+        ('Platform','VS Code / Windows','fa-code','#a78bfa'),
+        ('Features','12 Parameters','fa-sliders','var(--orange)'),
+        ('Risk Classes','4 Levels','fa-layer-group','var(--red)'),
+        ('Dataset','1000 Records','fa-database','var(--cyan)'),
+        ('Auth','Role-based','fa-lock','var(--green)'),
+      ] %}
+      {% for name, val, icon, color in info %}
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px">
+        <i class="fa-solid {{ icon }}" style="color:{{ color }};font-size:18px;margin-bottom:8px;display:block"></i>
+        <div style="font-size:13px;font-weight:600">{{ name }}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">{{ val }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
